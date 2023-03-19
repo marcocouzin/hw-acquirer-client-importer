@@ -2,38 +2,29 @@ package br.com.fiap.hwacquirerclientimporter.batchprocessing;
 
 import br.com.fiap.hwacquirerclientimporter.model.StudentIn;
 import br.com.fiap.hwacquirerclientimporter.model.StudentOut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
-public class StudentItemProcessor implements ItemProcessor<StudentIn, StudentOut>{
-    @Bean
-    public ItemProcessor<StudentIn, StudentOut> itemProcessor() {
-        return destinationIn -> {
-            StudentOut out = new StudentOut();
-            
-            out.setName(destinationIn.getName().toUpperCase());
-            out.setEmail(destinationIn.getEmail());
-            out.setBirthDate(destinationIn.getBirthDate());
-            out.setCourse(destinationIn.getCourse());
-            out.setStatus(destinationIn.getStatus());
-            
-            return out;
-        };
-    }
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+public class StudentItemProcessor implements ItemProcessor<StudentIn, StudentOut> {
+
+    private static final Logger log = LoggerFactory.getLogger(StudentItemProcessor.class);
 
     @Override
-    public StudentOut process(StudentIn destinationIn) throws Exception {
-        return destinationIn -> {
-            StudentOut out = new StudentOut();
+    public StudentOut process(final StudentIn studentIn) {
+        StudentOut studentOut = new StudentOut();
 
-            out.setName(destinationIn.getName().toUpperCase());
-            out.setEmail(destinationIn.getEmail());
-            out.setBirthDate(destinationIn.getBirthDate());
-            out.setCourse(destinationIn.getCourse());
-            out.setStatus(destinationIn.getStatus());
+        studentOut.setName(studentIn.getName().toUpperCase());
+        studentOut.setEmail(studentIn.getEmail());
+        studentOut.setBirthDate(LocalDate.parse(studentIn.getBirthDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        studentOut.setCourse(studentIn.getCourse());
+        studentOut.setStatus(studentIn.getStatus());
 
-            return out;
+        log.info("Converting (" + studentIn + ") into (" + studentOut + ")");
+
+        return studentOut;
     }
 }
